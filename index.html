@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Country API Project</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+
+<body class="bg-gray-100">
+
+    <div class="flex">
+        <aside class="w-72 min-h-screen bg-white border-r border-gray-200 shadow-sm">
+            <div class="p-5 sticky top-0 z-50 overflow-y-auto bg-white  max-h-screen">
+
+                <div class="flex justify-between items-center mb-5">
+                    <span class="text-lg font-bold text-gray-800 hover:text-sky-500 tracking-wide">FILTERS</span>
+
+                    <button id="clear-all" class="text-sm font-semibold text-sky-600 hover:text-sky-500 transition">
+                        CLEAR ALL
+                    </button>
+                </div>
+
+                <hr class="mb-5">
+
+                <div class="mb-4 border-b border-gray-200 pb-4">
+                    <button id="region-toggle"
+                        class="w-full flex justify-between items-center hover:text-sky-500 text-md font-semibold text-gray-700 py-2">
+                        <span>Region</span>
+                        <i id="region-icon" class="fas fa-chevron-up text-xs transition-transform duration-200"></i>
+                    </button>
+
+                    <ul id="region-list" class="space-y-3 mt-3 text-sm text-gray-700">
+                        <li data-region="africa"
+                            class="flex items-center gap-3 cursor-pointer hover:text-sky-600 transition">
+                            <input type="checkbox" class="accent-sky-600 region-checkbox w-4 h-4">
+                            <span class="font-medium">Africa</span>
+                            <span class="ml-auto text-sm font-semibold text-gray-500 region-count"></span>
+                        </li>
+
+                        <li data-region="americas"
+                            class="flex items-center gap-3 cursor-pointer hover:text-sky-600 transition">
+                            <input type="checkbox" class="accent-sky-600 region-checkbox w-4 h-4">
+                            <span class="font-medium">Americas</span>
+                            <span class="ml-auto text-sm font-semibold text-gray-500 region-count"></span>
+                        </li>
+
+                        <li data-region="asia"
+                            class="flex items-center gap-3 cursor-pointer hover:text-sky-600 transition">
+                            <input type="checkbox" class="accent-sky-600 region-checkbox w-4 h-4">
+                            <span class="font-medium">Asia</span>
+                            <span class="ml-auto text-sm font-semibold text-gray-500 region-count"></span>
+                        </li>
+
+                        <li data-region="europe"
+                            class="flex items-center gap-3 cursor-pointer hover:text-sky-600 transition">
+                            <input type="checkbox" class="accent-sky-600 region-checkbox w-4 h-4">
+                            <span class="font-medium">Europe</span>
+                            <span class="ml-auto text-sm font-semibold text-gray-500 region-count"></span>
+                        </li>
+
+                        <li data-region="oceania"
+                            class="flex items-center gap-3 cursor-pointer hover:text-sky-600 transition">
+                            <input type="checkbox" class="accent-sky-600 region-checkbox w-4 h-4">
+                            <span class="font-medium">Oceania</span>
+                            <span class="ml-auto text-sm font-semibold text-gray-500 region-count"></span>
+                        </li>
+                    </ul>
+                </div>
+
+
+            </div>
+        </aside>
+
+        <main class="flex-1">
+
+            <header
+                class=" sticky top-0 z-50 flex flex-col md:flex-row justify-between items-center p-4 bg-[#003049] shadow-md border-b border-gray-300">
+                <div class="flex items-center gap-4 mb-3 md:mb-0">
+                    <h2 class="text-2xl font-bold text-white">Terminal</h2>
+                </div>
+
+                <div class="relative w-full md:w-1/2">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-700"></i>
+                    <input type="text" id="search-input" placeholder="Search nations, codes, or capitals..."
+                        class="w-full  md:w-96 bg-gray-100 border border-gray-300 rounded-3xl p-1 pl-10 text-md focus:outline-none focus:ring-2 focus:ring-yellow-500 transition">
+                </div>
+
+                <div class="hidden md:flex items-center gap-2 text-xs font-bold">
+
+                    <span class="text-white font-semibold uppercase">Showing
+                        <span id="showing-count" class="ml-1">0</span>
+                    </span>
+
+                    <div class="flex border rounded overflow-hidden">
+                        <button id="grid-view" class="bg-black text-white p-2  transition">
+                            <i class="fas fa-th-large"></i>
+                        </button>
+                        <a href="detail.html">
+                            <button id="list-view" class="bg-white p-2 border-lg transition">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                        </a>
+                    </div>
+
+                </div>
+            </header>
+
+            <div id="countries-grid" class="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 bg-[#fdf0d5]">
+            </div>
+
+            <div id="loader"
+                class="hidden fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50">
+                <div
+                    class="flex items-center gap-3 bg-indigo-600 text-white px-6 py-3 rounded-2xl shadow-xl font-semibold">
+                    <svg class="w-5 h-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                    </svg>
+                    <span>Updating Nations...</span>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="region.js"></script>
+</body>
+
+</html>
