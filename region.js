@@ -8,14 +8,29 @@ const searchInput = document.getElementById("search-input");
 const showingCount = document.getElementById("showing-count");
 const clearAllBtn = document.getElementById("clear-all");
 
-const BASE_URL = "https://restcountries.com/v3.1/all?fields=name,flags,capital,cca3,population,area,region";
 
+const sidebar = document.getElementById("sidebar");
+const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+const closeSidebar = document.getElementById("close-sidebar");
+const overlay = document.getElementById("overlay");
+
+const BASE_URL = "https://restcountries.com/v3.1/all?fields=name,flags,capital,cca3,population,area,region";
 const MAX_POPULATION = 340_000_000;
 const MAX_AREA = 10_000_000;
 
 let allCountriesData = [];
 let selectedRegions = [];
 let searchQuery = "";
+
+function toggleSidebar() {
+    sidebar.classList.toggle("hidden-mobile");
+    sidebar.classList.toggle("show-mobile");
+    overlay.classList.toggle("hidden");
+}
+
+mobileMenuBtn.addEventListener("click", toggleSidebar);
+closeSidebar.addEventListener("click", toggleSidebar);
+overlay.addEventListener("click", toggleSidebar);
 
 function formatNumber(num) {
     if (!num) return "0";
@@ -25,14 +40,11 @@ function formatNumber(num) {
     return num;
 }
 
-
 async function fetchData() {
     try {
         loader.classList.remove("hidden");
-
         const response = await fetch(BASE_URL);
         allCountriesData = await response.json();
-
         displayCountries(allCountriesData);
         updateRegionCounts();
     } catch (error) {
@@ -41,8 +53,6 @@ async function fetchData() {
         loader.classList.add("hidden");
     }
 }
-
-
 
 function updateRegionCounts() {
     document.querySelectorAll("#region-list li").forEach(li => {
@@ -55,26 +65,18 @@ function updateRegionCounts() {
     });
 }
 
-
 function displayCountries(data) {
     countriesGrid.innerHTML = "";
     if (showingCount) showingCount.textContent = data.length;
-
     if (!data || data.length === 0) {
-        countriesGrid.innerHTML = `
-        <div class="col-span-full flex flex-col items-center justify-center py-20">
-            <p class="text-2xl font-bold  text-black justify-center items-center">No record found</p>
-          
-        </div>`;
+        countriesGrid.innerHTML = `<div class="col-span-full text-center py-20 font-bold text-xl">No record found</div>`;
         return;
     }
     countriesGrid.innerHTML = data.map(createCountryCard).join("");
 }
 
 function handleCountryClick(code) {
-    if (loader) {
-        loader.classList.remove("hidden");
-    }
+    if (loader) loader.classList.remove("hidden");
     setTimeout(() => {
         window.location.href = `country.html?code=${code}&from=index`;
     }, 1000);
@@ -86,36 +88,34 @@ function createCountryCard(c) {
     const capital = c.capital && c.capital.length ? c.capital[0] : "N/A";
 
     return `
-    <div onclick="handleCountryClick('${c.cca3}')"
-
-         class="cursor-pointer bg-white p-6 rounded-xl shadow-lg hover:-translate-y-1 transition duration-300 border border-transparent hover:border-sky-100">
-        <div class="flex justify-between items-start mb-5">
+    <div onclick="handleCountryClick('${c.cca3}')" class="cursor-pointer bg-white p-5 rounded-xl shadow-md hover:-translate-y-1 transition border border-transparent hover:border-sky-100">
+        <div class="flex justify-between items-start mb-4">
             <div class="flex gap-3">
-                <img src="${c.flags.png}" class="h-8 w-12 object-cover rounded shadow border border-gray-100">
+                <img src="${c.flags.png}" class="h-8 w-12 object-cover rounded shadow-sm border border-gray-100">
                 <div>
-                    <h3 class="font-bold text-lg text-gray-800 leading-tight">${c.name.common || "N/A"}</h3>
-                    <p class="text-xs font-serif text-gray-700">${capital}</p>
+                    <h3 class="font-bold text-md text-gray-800 leading-tight">${c.name.common || "N/A"}</h3>
+                    <p class="text-[10px] text-gray-500">${capital}</p>
                 </div>
             </div>
-            <span class="text-[10px] bg-gray-100 px-2 py-1 rounded font-bold text-gray-600 uppercase">${c.cca3}</span>
+            <span class="text-[10px] bg-gray-100 px-2 py-1 rounded font-bold text-gray-600">${c.cca3}</span>
         </div>
-        <div class="space-y-4">
+        <div class="space-y-3">
             <div>
-                <div class="flex justify-between text-xs  font-bold mb-1 text-black">
+                <div class="flex justify-between text-[10px] font-bold mb-1 text-black">
                     <span>POPULATION</span>
-                    <span class="text-gray-700">${formatNumber(c.population)}</span>
+                    <span>${formatNumber(c.population)}</span>
                 </div>
-                <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                    <div class="bg-blue-600 h-full transition-all duration-500" style="width:${popProgress}%"></div>
+                <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-blue-600 h-full" style="width:${popProgress}%"></div>
                 </div>
             </div>
             <div>
-                <div class="flex justify-between text-xs font-bold mb-1 text-black">
+                <div class="flex justify-between text-[10px] font-bold mb-1 text-black">
                     <span>AREA</span>
-                    <span class="text-gray-700">${formatNumber(c.area)} km²</span>
+                    <span>${formatNumber(c.area)} km²</span>
                 </div>
-                <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
-                    <div class="bg-yellow-500 h-full transition-all duration-500" style="width:${areaProgress}%"></div>
+                <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+                    <div class="bg-yellow-500 h-full" style="width:${areaProgress}%"></div>
                 </div>
             </div>
         </div>
@@ -124,32 +124,16 @@ function createCountryCard(c) {
 
 function applyFilters() {
     let filtered = allCountriesData;
-
-    if (selectedRegions.length) {
-        filtered = filtered.filter(c => selectedRegions.includes(c.region.toLowerCase()));
-    }
-
+    if (selectedRegions.length) filtered = filtered.filter(c => selectedRegions.includes(c.region.toLowerCase()));
     if (searchQuery) {
         filtered = filtered.filter(c => {
             const name = c.name.common.toLowerCase() || "";
-            const capital = c.capital && c.capital.length ? c.capital[0].toLowerCase() : "";
+            const capital = c.capital?.[0]?.toLowerCase() || "";
             const code = c.cca3.toLowerCase() || "";
             return name.includes(searchQuery) || capital.includes(searchQuery) || code.includes(searchQuery);
         });
     }
     displayCountries(filtered);
-}
-
-async function filterWithLoader(cb) {
-    loader.classList.remove("hidden");
-    countriesGrid.innerHTML = ""; 
-    countriesGrid.style.opacity = 0;
-    
-    await new Promise(r => setTimeout(r, 600)); 
-    await cb();
-    
-    countriesGrid.style.opacity = 1;
-    loader.classList.add("hidden");
 }
 
 regionCheckboxes.forEach(cb => {
@@ -158,16 +142,14 @@ regionCheckboxes.forEach(cb => {
         const region = li.dataset.region.toLowerCase();
         if (cb.checked) selectedRegions.push(region);
         else selectedRegions = selectedRegions.filter(r => r !== region);
-        filterWithLoader(applyFilters);
+        applyFilters();
     });
 });
 
 if (searchInput) {
-    let timer;
     searchInput.addEventListener("input", () => {
-        clearTimeout(timer);
         searchQuery = searchInput.value.toLowerCase().trim();
-        timer = setTimeout(() => applyFilters(), 300);
+        applyFilters();
     });
 }
 
