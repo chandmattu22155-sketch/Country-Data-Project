@@ -37,7 +37,6 @@ function displayCountries(data) {
     if (!cardGrid) return;
     cardGrid.innerHTML = "";
     
-    // Update count on both Desktop and Mobile
     if (showingCount) showingCount.textContent = data.length;
     if (showingCountMobile) showingCountMobile.textContent = data.length;
 

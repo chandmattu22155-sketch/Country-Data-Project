@@ -82,22 +82,64 @@ function handleCountryClick(code) {
     }, 1000);
 }
 
+// function createCountryCard(c) {
+//     const popProgress = Math.min((c.population / MAX_POPULATION) * 100, 100);
+//     const areaProgress = Math.min((c.area / MAX_AREA) * 100, 100);
+//     const capital = c.capital && c.capital.length ? c.capital[0] : "N/A";
+
+//     return `
+//     <div onclick="handleCountryClick('${c.cca3}')" class="cursor-pointer bg-white p-5 rounded-xl shadow-md hover:-translate-y-1 transition border border-transparent hover:border-sky-100">
+//         <div class="flex justify-between items-start mb-4">
+//             <div class="flex gap-3">
+//                 <img src="${c.flags.png}" class="h-8 w-12 object-cover rounded shadow-sm border border-gray-100">
+//                 <div>
+//                     <h3 class="font-bold text-md text-gray-800 leading-tight">${c.name.common || "N/A"}</h3>
+//                     <p class="text-[10px] text-gray-500">${capital}</p>
+//                 </div>
+//             </div>
+//             <span class="text-[10px] bg-gray-100 px-2 py-1 rounded font-bold text-gray-600">${c.cca3}</span>
+//         </div>
+//         <div class="space-y-3">
+//             <div>
+//                 <div class="flex justify-between text-[10px] font-bold mb-1 text-black">
+//                     <span>POPULATION</span>
+//                     <span>${formatNumber(c.population)}</span>
+//                 </div>
+//                 <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+//                     <div class="bg-blue-600 h-full" style="width:${popProgress}%"></div>
+//                 </div>
+//             </div>
+//             <div>
+//                 <div class="flex justify-between text-[10px] font-bold mb-1 text-black">
+//                     <span>AREA</span>
+//                     <span>${formatNumber(c.area)} km²</span>
+//                 </div>
+//                 <div class="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+//                     <div class="bg-yellow-500 h-full" style="width:${areaProgress}%"></div>
+//                 </div>
+//             </div>
+//         </div>
+//     </div>`;
+// }
+
+
 function createCountryCard(c) {
     const popProgress = Math.min((c.population / MAX_POPULATION) * 100, 100);
     const areaProgress = Math.min((c.area / MAX_AREA) * 100, 100);
     const capital = c.capital && c.capital.length ? c.capital[0] : "N/A";
 
+    // "h-[180px]" add kiya hai taake height fix rahe aur "overflow-hidden"
     return `
-    <div onclick="handleCountryClick('${c.cca3}')" class="cursor-pointer bg-white p-5 rounded-xl shadow-md hover:-translate-y-1 transition border border-transparent hover:border-sky-100">
-        <div class="flex justify-between items-start mb-4">
-            <div class="flex gap-3">
-                <img src="${c.flags.png}" class="h-8 w-12 object-cover rounded shadow-sm border border-gray-100">
-                <div>
-                    <h3 class="font-bold text-md text-gray-800 leading-tight">${c.name.common || "N/A"}</h3>
-                    <p class="text-[10px] text-gray-500">${capital}</p>
+    <div onclick="handleCountryClick('${c.cca3}')" class="cursor-pointer bg-white p-5 rounded-xl shadow-md hover:-translate-y-1 transition border border-transparent hover:border-sky-100 h-[180px] flex flex-col justify-between overflow-hidden">
+        <div class="flex justify-between items-start mb-2">
+            <div class="flex gap-3 overflow-hidden">
+                <img src="${c.flags.png}" class="h-8 w-12 min-w-[48px] object-cover rounded shadow-sm border border-gray-100">
+                <div class="overflow-hidden">
+                    <h3 class="font-bold text-md text-gray-800 leading-tight truncate w-full">${c.name.common || "N/A"}</h3>
+                    <p class="text-[10px] text-gray-500 truncate">${capital}</p>
                 </div>
             </div>
-            <span class="text-[10px] bg-gray-100 px-2 py-1 rounded font-bold text-gray-600">${c.cca3}</span>
+            <span class="text-[10px] bg-gray-100 px-2 py-1 rounded font-bold text-gray-600 shrink-0">${c.cca3}</span>
         </div>
         <div class="space-y-3">
             <div>
@@ -121,7 +163,6 @@ function createCountryCard(c) {
         </div>
     </div>`;
 }
-
 function applyFilters() {
     let filtered = allCountriesData;
     if (selectedRegions.length) filtered = filtered.filter(c => selectedRegions.includes(c.region.toLowerCase()));
@@ -138,11 +179,21 @@ function applyFilters() {
 
 regionCheckboxes.forEach(cb => {
     cb.addEventListener("change", () => {
+
+        loader.classList.remove("hidden");
+
         const li = cb.closest("li");
         const region = li.dataset.region.toLowerCase();
-        if (cb.checked) selectedRegions.push(region);
-        else selectedRegions = selectedRegions.filter(r => r !== region);
-        applyFilters();
+
+        if (cb.checked) {
+            selectedRegions.push(region);
+        } else {
+            selectedRegions = selectedRegions.filter(r => r !== region);
+        }
+        setTimeout(() => {
+            applyFilters();
+            loader.classList.add("hidden"); 
+        }, 1000);
     });
 });
 
@@ -168,4 +219,5 @@ regionToggle.addEventListener("click", () => {
     regionIcon.classList.toggle("rotate-180");
 });
 
-fetchData();
+fetchData(); 
+
